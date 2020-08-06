@@ -15,7 +15,7 @@
           v-model="loginForm.username"
           placeholder="Username"
           name="username"
-          type="text"
+          type="email"
           tabindex="1"
           autocomplete="on"
         />
@@ -89,7 +89,7 @@ export default {
       }
     }
     const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
+      if (value.length < 5) {
         callback(new Error('The password can not be less than 6 digits'))
       } else {
         callback()
@@ -97,8 +97,8 @@ export default {
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        username: 'user@user.user',
+        password: '12345'
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
