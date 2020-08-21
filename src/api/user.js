@@ -8,21 +8,27 @@ export function login(data) {
   })
 }
 
-export function getInfo(token) {
-  // TODO: remove this temp mock
-  return Promise.resolve({
-    data: {
-      roles: ['admin'],
-      introduction: 'I am a super administrator',
-      avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
-      name: 'Super Admin'
-    }
+export function refreshToken(data) {
+  return request({
+    url: '/auth/refresh-token',
+    method: 'post',
+    data: { token: data }
   })
-  // return request({
-  //   url: '/vue-element-admin/user/info',
-  //   method: 'get',
-  //   params: { token }
-  // })
+}
+
+export function getInfo(token = 'admin-token') {
+  return request({
+    url: '/vue-element-admin/user/info',
+    method: 'get',
+    params: { token: 'admin-token' }
+  })
+}
+
+export function getCurrentUserInfo() {
+  return request({
+    url: '/users/current',
+    method: 'get'
+  })
 }
 
 export function logout() {

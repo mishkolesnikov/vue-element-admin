@@ -3,6 +3,8 @@ import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
 
+let refreshTokenCall
+
 // create an axios instance
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
@@ -15,13 +17,37 @@ service.interceptors.request.use(
   config => {
     // do something before request is sent
 
-    if (store.getters.token) {
-      // let each request carry token
-      // ['X-Token'] is a custom headers key
-      // please modify it according to the actual situation
-      config.headers['Authorization'] = `Bearer ${getToken()}`
+    if (config.url.includes('refresh-token')) {
+      return config
     }
-    return config
+
+    if (store.getters.token == null) {
+      return config
+    }
+
+    const { access_token, expires_in } = JSON.parse(getToken())
+
+    if (store.getters.token && expires_in > new Date()) {
+      config.headers['Authorization'] = `Bearer ${access_token}`
+      return config
+    }
+
+    // refresh the token if it's expired
+    if (store.getters.token && expires_in < new Date()) {
+      if (!refreshTokenCall) {
+        refreshTokenCall = store.dispatch('user/refreshToken')
+          .then((res) => {
+            config.headers['Authorization'] = `Bearer ${res.access_token}`
+          })
+          .finally(() => {
+            refreshTokenCall = undefined
+          })
+      }
+
+      return refreshTokenCall.finally(() => {
+        return config
+      })
+    }
   },
   error => {
     // do something with request error
@@ -43,21 +69,32 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
-    // code for atual login request
+    const res = response.data
+    // pass actual requests through
     // TODO: refactor
     if (response.config.url.includes('login')) {
       if (response.status === 200) {
-        return response.data
+        return res
       }
     }
 
     if (response.config.url.includes('sign-out')) {
       if (response.status === 200) {
-        return response.data
+        return res
       }
     }
 
-    const res = response.data
+    if (response.config.url.includes('current')) {
+      if (response.status === 200) {
+        return res
+      }
+    }
+
+    if (response.config.url.includes('refresh-token')) {
+      if (response.status === 200) {
+        return res
+      }
+    }
 
     // if the custom code is not 20000, it is judged as an error.
     if (res.code !== 20000) {
@@ -92,6 +129,20 @@ service.interceptors.response.use(
       type: 'error',
       duration: 5 * 1000
     })
+
+    if (error.response.code === 401) {
+      // to re-login
+      MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
+        confirmButtonText: 'Re-Login',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      }).then(() => {
+        store.dispatch('user/resetToken').then(() => {
+          location.reload()
+        })
+      })
+    }
+
     return Promise.reject(error)
   }
 )
