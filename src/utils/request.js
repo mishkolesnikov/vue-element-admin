@@ -70,34 +70,9 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-    // pass actual requests through
-    // TODO: refactor
-    if (response.config.url.includes('login')) {
-      if (response.status === 200) {
-        return res
-      }
-    }
-
-    if (response.config.url.includes('sign-out')) {
-      if (response.status === 200) {
-        return res
-      }
-    }
-
-    if (response.config.url.includes('current')) {
-      if (response.status === 200) {
-        return res
-      }
-    }
-
-    if (response.config.url.includes('refresh-token')) {
-      if (response.status === 200) {
-        return res
-      }
-    }
 
     // if the custom code is not 20000, it is judged as an error.
-    if (res.code !== 20000) {
+    if (res.code && res.code !== 20000) {
       Message({
         message: res.message || 'Error',
         type: 'error',
