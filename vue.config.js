@@ -36,7 +36,7 @@ module.exports = {
       warnings: false,
       errors: true
     },
-    proxy: 'http://localhost:3001/api',
+    proxy: process.env.BACKEND_API,
     before: require('./mock/mock-server.js')
   },
   configureWebpack: {

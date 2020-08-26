@@ -16,14 +16,6 @@ export function refreshToken(data) {
   })
 }
 
-export function getInfo(token = 'admin-token') {
-  return request({
-    url: '/vue-element-admin/user/info',
-    method: 'get',
-    params: { token: 'admin-token' }
-  })
-}
-
 export function getCurrentUserInfo() {
   return request({
     url: '/users/current',

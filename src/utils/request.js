@@ -25,7 +25,7 @@ service.interceptors.request.use(
       return config
     }
 
-    const { access_token, expires_in } = JSON.parse(getToken())
+    const { access_token, expires_in } = getToken()
 
     if (store.getters.token && expires_in > new Date()) {
       config.headers['Authorization'] = `Bearer ${access_token}`
@@ -105,7 +105,7 @@ service.interceptors.response.use(
       duration: 5 * 1000
     })
 
-    if (error.response.code === 401) {
+    if (error.response && error.response.code && error.response.code === 401) {
       // to re-login
       MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
         confirmButtonText: 'Re-Login',
