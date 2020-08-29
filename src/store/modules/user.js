@@ -8,7 +8,8 @@ const state = {
   avatar: '',
   introduction: '',
   roles: [],
-  email: ''
+  email: '',
+  user: null
 }
 
 const mutations = {
@@ -29,6 +30,9 @@ const mutations = {
   },
   SET_EMAIL: (state, email) => {
     state.email = email
+  },
+  SET_USER: (state, user) => {
+    state.user = user
   }
 }
 
@@ -74,7 +78,7 @@ const actions = {
         commit('SET_NAME', firstName)
         commit('SET_AVATAR', avatar)
         commit('SET_EMAIL', email)
-        commit('SET_ROLES', roles.map(role => role.toLowerCase()))
+        commit('SET_ROLES', roles)
         commit('SET_INTRODUCTION', introduction)
         resolve({ roles })
       }).catch(error => {
@@ -115,13 +119,9 @@ const actions = {
 
   // dynamically modify permissions
   async changeRoles({ commit, dispatch }, role) {
-    const token = role + '-token'
+    const roles = [role]
 
-    commit('SET_TOKEN', token)
-    setToken(token)
-
-    const { roles } = await dispatch('getInfo')
-
+    commit('SET_ROLES', roles)
     resetRouter()
 
     // generate accessible routes map based on roles
