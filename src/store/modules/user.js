@@ -1,4 +1,4 @@
-import { login, logout, getCurrentUserInfo, refreshToken } from '@/api/user'
+import { login, logout, getCurrentUserInfo, refreshToken, updateUser } from '@/api/user'
 import { setToken, removeToken, getAccessToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
@@ -9,7 +9,7 @@ const state = {
   introduction: '',
   roles: [],
   email: '',
-  user: null
+  user: {}
 }
 
 const mutations = {
@@ -66,6 +66,8 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getCurrentUserInfo().then(data => {
+        commit('SET_USER', data)
+
         const avatar = `/users/${data.id}/photo?token=${state.token}`
         const { firstName, email, roles } = data
         const introduction = `Hello, my name is ${firstName}`
@@ -131,6 +133,20 @@ const actions = {
 
     // reset visited views and cached views
     dispatch('tagsView/delAllViews', null, { root: true })
+  },
+
+  updateUser({ commit, state, dispatch }, user) {
+    const newUser = {
+      ...state.user,
+      firstName: user.name,
+      email: user.email
+    }
+
+    return updateUser(newUser).then(token => {
+      commit('SET_TOKEN', token.access_token)
+      setToken(token)
+      return dispatch('getInfo')
+    })
   }
 }
 

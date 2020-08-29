@@ -27,11 +27,14 @@ export default {
   },
   methods: {
     submit() {
-      this.$message({
-        message: 'User information has been updated successfully',
-        type: 'success',
-        duration: 5 * 1000
-      })
+      this.$store.dispatch('user/updateUser', this.user)
+        .then(data => {
+          this.$message({
+            message: 'User information has been updated successfully',
+            type: 'success',
+            duration: 5 * 1000
+          })
+        })
     }
   }
 }
