@@ -1,5 +1,5 @@
 import { login, logout, getCurrentUserInfo, refreshToken, updateUser } from '@/api/user'
-import { setToken, removeToken, getAccessToken } from '@/utils/auth'
+import { setToken, removeToken, getAccessToken, getToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
 const state = {
@@ -52,8 +52,8 @@ const actions = {
     })
   },
 
-  refreshToken({ commit, state }) {
-    return refreshToken(state.token)
+  refreshToken({ commit }) {
+    return refreshToken(getToken())
       .then(response => {
         const { token } = response
         commit('SET_TOKEN', token.access_token)

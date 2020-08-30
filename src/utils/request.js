@@ -38,13 +38,11 @@ service.interceptors.request.use(
         refreshTokenCall = store.dispatch('user/refreshToken')
           .then((res) => {
             config.headers['Authorization'] = `Bearer ${res.access_token}`
-          })
-          .finally(() => {
             refreshTokenCall = undefined
           })
       }
 
-      return refreshTokenCall.finally(() => {
+      return refreshTokenCall.then(() => {
         return config
       })
     }
